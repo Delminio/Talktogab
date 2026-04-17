@@ -170,11 +170,39 @@ async function sendToAI(text) {
     }))
   };
 
-  const response = await fetch("/api/chat", {
+  async function sendToAI(text) {
+  statusText.textContent = "Enviando para a IA...";
+
+  const body = {
+    message: text,
+    level: levelSelect.value,
+    mode: modeSelect.value,
+    topic: topicInput.value || "general conversation",
+    history: getHistory().slice(0, 6).map(item => ({
+      user: item.user,
+      assistant: item.reply
+    }))
+  };
+
+  const API_BASE =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://talktogab.onrender.com";
+
+  const response = await fetch(`${API_BASE}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Erro ao conversar com a IA.");
+  }
+
+  return data;
+}
 
   const data = await response.json();
 
